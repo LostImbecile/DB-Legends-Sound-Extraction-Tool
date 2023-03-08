@@ -1,7 +1,7 @@
 # DB-Legends-Sound-Extraction-Tool
 Tool to extract sound files from Dragon Ball Legends (mobile game). Windows only.
 
-You need vgmstream-cli from https://vgmstream.org/ (command-line). Either put the contents in the defined folder or set up its PATH variable.
+You need vgmstream-cli from https://vgmstream.org/ (command-line). Either put the contents a folder named "vgmstream-cli" next to the exe, or set up its PATH variable.
 
 Steps: 
 1 - Rename all files in the streamingassetbundles folder to have the .acb extension.
