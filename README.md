@@ -3,6 +3,17 @@ Tool to sort & extract sound files from Dragon Ball Legends (mobile game). Windo
 
 You need vgmstream-cli from https://vgmstream.org/ (command-line). Put the contents in a folder named "vgmstream-cli" next to the exe. This is used to extract the files and you don't need the tool if that's all your looking for (Text file in source code includes the commands you need).
 
+## New Python Version
+
+To use the Python version of this tool, execute the following in a terminal (should work on Windows, macOS, or Linux)
+
+```bash
+python main.py # for all clips
+python main.py CHARACTER LANGUAGE # for one character. CHARACTER is name of character like shallot and LANGUAGE can either be eng or jpn
+```
+
+All that is required is Python installed. Also there is a zip file generated at the end named wavs.zip.
+
 Steps: 
 
 \--------------------------------------------------------------------------------------------------------------------
