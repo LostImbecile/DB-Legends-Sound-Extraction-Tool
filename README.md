@@ -15,12 +15,14 @@
 
 ---
 
-**Notes:**
+**Important Notes:**
 - You need FFmpeg and vgmstream-cli. Make sure they’re either set in PATH (in your environmental variables) or inside a folder in the same directory as the app. Links below.
 - To stay up-to-date, run the Python script, which requires Python and UnityPy (`pip install UnityPy`).
 - All settings are in `config.properties`. You won’t be asked for input during the run.
+
+**Other Notes:**
 - Any task already done won’t be performed again. If a file was downloaded, it detects that and doesn't redownload. Same for extracted or converted files. This saves time and resources. If this causes an issue, delete corrupted files or move them outside the download directory.
-- This currently downloads all files in the categories you set. A filter is implemented but requires a GUI to use effectively. Otherwise, it’s easier to download everything (around 400MB for all English files).
+- This currently downloads all files in the categories you set.
 - To extract videos (files without an extension in Misc), use:
   ```
   ffmpeg -i input output.mp4
@@ -28,7 +30,7 @@
   Some files are internally .avi or .usm. No need to add an extension.
 - The tool is filename sensitive and will redownload/re-extract any files with changed names.
 - Some later processes require full CPU usage, mainly conversion with ffmpeg as your antivirus will be very active.
-- Windows only; needs tweaking for Linux.
+- Works on Windows and possibly on Linux.
 
 ---
 
@@ -38,7 +40,7 @@
 
 ---
 
-**Full process details (you can skip):**
+**Full process details (You do not need to read this):**
 
 **Downloading:**
 - You need an internet connection to download all the required files and connect to dblegends.net, the total size is first checked which may or may not take a while depending on your connection, it doesn't necessarily try to make full use of your bandwidth but it uses a sensible amount through heavy multi-threading, most reasonable I found during my tests.
