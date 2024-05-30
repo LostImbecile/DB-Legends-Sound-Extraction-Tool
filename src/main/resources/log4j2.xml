@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Configuration status="ERROR">
+	<Properties>
+		<Property name="filename">./logs</Property>
+	</Properties>
+	<Appenders>
+
+		<Console name="ConsoleBare" target="SYSTEM_OUT">
+			<PatternLayout pattern="%msg%n" />
+		</Console>
+
+		<Console name="ConsoleWithInfo" target="SYSTEM_OUT">
+			<ThresholdFilter level="ERROR" onMatch="DENY"
+				onMismatch="ACCEPT" />
+			<PatternLayout
+				pattern="%d{HH:mm:ss} %-5level %logger{0} - %msg%n" />
+		</Console>
+
+		<RollingFile name="ErrorLogFile"
+			fileName="${filename}/errorLog.log"
+			filePattern="${filename}/errorLog-%d{yyyy-MM-dd-HH}-%i.log">
+			<PatternLayout>
+				<pattern>%d{HH:mm:ss} [%t] %-5level %logger{3} - %msg%n</pattern>
+			</PatternLayout>
+			<Policies>
+				<OnStartupTriggeringPolicy />
+				<SizeBasedTriggeringPolicy size="50 KB" />
+			</Policies>
+			<DefaultRolloverStrategy max="5">
+				<Delete basePath="${filename}" maxDepth="1">
+					<IfFileName glob="errorLog-*.log" />
+					<IfAccumulatedFileSize exceeds="30MB" />
+				</Delete>
+			</DefaultRolloverStrategy>
+		</RollingFile>
+
+		<RollingFile name="InfoLogFile"
+			fileName="${filename}/infoLog.log"
+			filePattern="${filename}/infoLog-%d{yyyy-MM-dd-HH}-%i.log">
+			<LevelRangeFilter minLevel="INFO" maxLevel="INFO"
+				onMatch="ACCEPT" onMismatch="DENY" />
+			<PatternLayout>
+				<pattern>%msg%n</pattern>
+			</PatternLayout>
+			<Policies>
+				<OnStartupTriggeringPolicy />
+				<SizeBasedTriggeringPolicy size="10 MB" />
+			</Policies>
+
+			<DefaultRolloverStrategy max="10">
+				<Delete basePath="${filename}" maxDepth="1">
+					<IfFileName glob="infoLog-*.log" />
+					<IfAccumulatedFileSize exceeds="30MB" />
+				</Delete>
+			</DefaultRolloverStrategy>
+		</RollingFile>
+
+	</Appenders>
+	<Loggers>
+		<Root level="info" additivity="false">
+			<AppenderRef ref="ConsoleWithInfo" level="warn" />
+			<AppenderRef ref="InfoLogFile" />
+			<AppenderRef ref="ErrorLogFile" level="error" />
+		</Root>
+	</Loggers>
+</Configuration>
