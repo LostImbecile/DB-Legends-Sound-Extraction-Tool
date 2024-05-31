@@ -5,7 +5,7 @@ import java.io.File;
 import objects.Characters;
 
 public class PathBuilder {
-	private static final String PATH_SEP = File.pathSeparator;
+	private static final String PATH_SEP = File.separator;
 	public static String buildTargetPathKnown(String originalPath, Characters character, boolean isGeneral) {
 		StringBuilder targetPath = new StringBuilder();
 

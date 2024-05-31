@@ -145,9 +145,11 @@ public class FileOperations {
 	}
 
 	public static void createDirectory(String path) {
-		File directory = new File(path);
-		if (!directory.exists()) {
-			directory.mkdirs();
+		if (path != null) {
+			File directory = new File(path);
+			if (!directory.exists()) {
+				directory.mkdirs();
+			}
 		}
 	}
 

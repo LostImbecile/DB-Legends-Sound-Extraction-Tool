@@ -71,7 +71,7 @@ public class Processor {
 				String targetPath = getTargetPath(characterMap, idMap, path);
 
 				String url = entry.getValue().getAsString();
-				targetPath = downloadDir + File.pathSeparator + targetPath;
+				targetPath = downloadDir + File.separator + targetPath;
 
 				JsonObject paths = new JsonObject();
 				paths.add("name", new JsonPrimitive(path));

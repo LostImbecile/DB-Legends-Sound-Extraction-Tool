@@ -30,7 +30,8 @@ public class AudioExtractor {
 	private static AtomicLong startTime = new AtomicLong(0);
 	private static String ffmpegPath = "ffmpeg";
 	private static String vgmstreamPath = "vgmstream-cli";
-	private static FileOperations fileOperations = new FileOperations();
+	private static FileOperations inputFolderIndexer = new FileOperations();
+	private static FileOperations mainFolderIndexer = new FileOperations();
 	private static ProgressBar progressBar;
 
 	private AudioExtractor() {
@@ -49,7 +50,11 @@ public class AudioExtractor {
 		ProgressBar progressBar = new NumberProgressBar(processedNum, totalFileNum, startTime);
 		setProgressBar(progressBar);
 
-		
+		try {
+			mainFolderIndexer.indexDirectory(Paths.get("/"));
+		} catch (IOException e) {
+			mainFolderIndexer = null;
+		}
 		progressBar.reset();
 		extractFiles(inputDir, extract, numberOfThreads);
 		progressBar.reset();
@@ -75,18 +80,18 @@ public class AudioExtractor {
 
 		if (deleteWAV || deleteACB || deleteAWB) {
 			System.out.println("Deleting files...");
-			fileOperations.deleteFiles(deleteExt);
+			inputFolderIndexer.deleteFiles(deleteExt);
 		}
 	}
 
 	public static void convertFiles(String inputDir, boolean convertToOGG, int numberOfCores) {
 		if (convertToOGG && checkVgmstream()) {
 			try {
-				fileOperations.indexDirectory(Paths.get(inputDir));
+				inputFolderIndexer.indexDirectory(Paths.get(inputDir));
 			} catch (IOException e) {
 				logger.error(e);
 			}
-			totalFileNum.set(fileOperations.numberOfFilesWithExtension("wav"));
+			totalFileNum.set(inputFolderIndexer.numberOfFilesWithExtension("wav"));
 			// Step 2: Convert all .wav files to .ogg
 			System.out.println("Converting wav to ogg...");
 			ExecutorService wavExecutor = Executors.newFixedThreadPool(numberOfCores);
@@ -105,7 +110,7 @@ public class AudioExtractor {
 	public static void extractFiles(String inputDir, boolean extract, int numberOfCores) {
 		if (extract) {
 			try {
-				fileOperations.indexDirectory(Paths.get(inputDir));
+				inputFolderIndexer.indexDirectory(Paths.get(inputDir));
 			} catch (IOException e) {
 				logger.error(e);
 			}
@@ -116,7 +121,7 @@ public class AudioExtractor {
 			if (!checkFFmpeg())
 				return;
 
-			totalFileNum.set(fileOperations.numberOfFilesWithExtension("acb", "awb"));
+			totalFileNum.set(inputFolderIndexer.numberOfFilesWithExtension("acb", "awb"));
 
 			ExecutorService acbExecutor = Executors.newFixedThreadPool(numberOfCores);
 			processFiles(acbExecutor, ".acb", AudioExtractor::convertAcbToWav);
@@ -162,13 +167,13 @@ public class AudioExtractor {
 
 	public static String getExecutablePath(String command) {
 		if (!canExecuteCommand(command)) {
-			return fileOperations.getPath(command + ".exe");
+			return mainFolderIndexer != null ? mainFolderIndexer.getPath(command + ".exe") : null;
 		}
 		return command;
 	}
 
 	private static void processFiles(ExecutorService executor, String extension, FileProcessor processor) {
-		for (Entry<String, Path> entry : fileOperations.getFileIndex().entrySet()) {
+		for (Entry<String, Path> entry : inputFolderIndexer.getFileIndex().entrySet()) {
 			File file = entry.getValue().toFile();
 			if (!file.isDirectory() && file.getName().endsWith(extension)) {
 				executor.submit(() -> processor.process(file));
@@ -194,7 +199,7 @@ public class AudioExtractor {
 	private static void convertAcbToWav(File file) {
 		String nameNoExt = file.getName();
 		nameNoExt = nameNoExt.substring(0, nameNoExt.indexOf("."));
-		if (fileOperations != null && !fileOperations.containsFileName(nameNoExt, "acb")) {
+		if (inputFolderIndexer != null && !inputFolderIndexer.containsFileName(nameNoExt, "acb")) {
 			String outputFilePath = file.getAbsolutePath().replaceAll("\\.acb$", "_?03s_?n.wav");
 			String command = String.format("\"%s\" -S 0 -o \"%s\" \"%s\"", vgmstreamPath, outputFilePath,
 					file.getAbsolutePath());
@@ -206,7 +211,7 @@ public class AudioExtractor {
 	private static void convertAwbToWav(File file) {
 		String nameNoExt = file.getName();
 		nameNoExt = nameNoExt.substring(0, nameNoExt.indexOf("."));
-		if (fileOperations != null && !fileOperations.containsFileName(nameNoExt, "awb")) {
+		if (inputFolderIndexer != null && !inputFolderIndexer.containsFileName(nameNoExt, "awb")) {
 			String command = String.format("\"%s\" -S 0 \"%s\"", vgmstreamPath, file.getAbsolutePath());
 			executeCommand(command);
 		}
