@@ -31,7 +31,7 @@
 - The tool is filename sensitive and will redownload/re-extract any files with changed names.
 - Some later processes require full CPU usage, mainly conversion with ffmpeg as your antivirus will be very active.
 - Works on Windows and possibly on Linux.
-
+- For any issues or if it fails contact me on Discord: `lostimbecile`
 ---
 
 **Links:**
