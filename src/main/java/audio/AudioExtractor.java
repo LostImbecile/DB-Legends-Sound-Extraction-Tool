@@ -51,7 +51,7 @@ public class AudioExtractor {
 		setProgressBar(progressBar);
 
 		try {
-			mainFolderIndexer.indexDirectory(Paths.get("/"));
+			mainFolderIndexer.indexDirectory(Paths.get("."));
 		} catch (IOException e) {
 			mainFolderIndexer = null;
 		}
