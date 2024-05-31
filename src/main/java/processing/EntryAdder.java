@@ -1,5 +1,7 @@
 package processing;
 
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 import com.google.gson.JsonObject;
 
 import config.ConfigManager;
@@ -24,6 +26,7 @@ public class EntryAdder {
 	public EntryAdder(String downloadDir, boolean resort, List<String[]> links) {
 		if (resort) {
 			try {
+				System.out.println("Indexing for re-sort...");
 				fileOperations.indexDirectory(Paths.get(downloadDir));
 			} catch (IOException e) {
 			}
@@ -31,34 +34,35 @@ public class EntryAdder {
 		this.links = links;
 		this.resort = resort;
 	}
-	
+
 	public void saveFiles() {
 		boolean openJPN = ConfigManager.getBooleanProperty("Open_JPN");
 		boolean openENG = ConfigManager.getBooleanProperty("Open_ENG");
 		boolean openSE = ConfigManager.getBooleanProperty("Open_SE");
 		boolean downloadMisc = ConfigManager.getBooleanProperty("Download_Misc");
 		boolean generateJson = ConfigManager.getBooleanProperty("Generate_Paths_JSON");
-		
+
 		try {
 			if (generateJson) {
+				Gson gson = new GsonBuilder().setPrettyPrinting().create();
 				if (openJPN)
 					try (FileWriter file = new FileWriter("JPN.json")) {
-						file.write(jpnResultJson.toString());
+						file.write(gson.toJson(jpnResultJson));
 						file.flush();
 					}
 				if (openENG)
 					try (FileWriter file = new FileWriter("ENG.json")) {
-						file.write(engResultJson.toString());
+						file.write(gson.toJson(engResultJson));
 						file.flush();
 					}
 				if (openSE)
 					try (FileWriter file = new FileWriter("SE.json")) {
-						file.write(seResultJson.toString());
+						file.write(gson.toJson(seResultJson));
 						file.flush();
 					}
 				if (downloadMisc) {
 					try (FileWriter file = new FileWriter("Misc.json")) {
-						file.write(otherResultJson.toString());
+						file.write(gson.toJson(otherResultJson));
 						file.flush();
 					}
 				}

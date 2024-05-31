@@ -4,10 +4,13 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.file.*;
 import java.nio.file.attribute.BasicFileAttributes;
+import java.util.EnumSet;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Set;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -33,15 +36,32 @@ public class FileOperations {
 		}
 	}
 
-	// Function to delete empty folders recursively
-	public static void deleteEmptyFolders(File directory) {
+	public void deleteEmptyFoldersUsingIndex() {
+		// Collect all directories in a Set to avoid duplicates
+		Set<Path> directories = new HashSet<>();
+		for (Path path : fileIndex.values()) {
+			directories.add(path.getParent());
+		}
+
+		// Iterate through collected directories and delete if empty
+		for (Path dir : directories) {
+			File directory = dir.toFile();
+			if (directory.isDirectory() && directory.list().length == 0) {
+				if (!directory.delete()) {
+					logger.error("Failed to delete empty directory: \n\"{}\"", directory.getAbsolutePath());
+				}
+			}
+		}
+	}
+
+	public static void deleteEmptyFoldersRecursively(File directory) {
 		if (directory.isDirectory()) {
 			File[] files = directory.listFiles();
 			if (files != null) {
 				for (File file : files) {
 					if (file.isDirectory()) {
 						// Recursive call to delete empty subdirectories first
-						deleteEmptyFolders(file);
+						deleteEmptyFoldersRecursively(file);
 					}
 				}
 			}
@@ -50,6 +70,48 @@ public class FileOperations {
 				directory.delete();
 			}
 		}
+	}
+
+	public void indexDirectory(Path startPath, int maxDepth, Path ignoreDir) throws IOException {
+		Files.walkFileTree(startPath, EnumSet.noneOf(FileVisitOption.class), maxDepth, new SimpleFileVisitor<Path>() {
+			@Override
+			public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) {
+				fileIndex.put(file.getFileName().toString(), file);
+				return FileVisitResult.CONTINUE;
+			}
+
+			@Override
+			public FileVisitResult visitFileFailed(Path file, IOException exc) {
+				return FileVisitResult.CONTINUE;
+			}
+
+			@Override
+			public FileVisitResult preVisitDirectory(Path dir, BasicFileAttributes attrs) {
+				try {
+					if (Files.isSameFile(dir, ignoreDir)) {
+						return FileVisitResult.SKIP_SUBTREE;
+					} else {
+					}
+				} catch (IOException e) {
+				}
+				return FileVisitResult.CONTINUE;
+			}
+		});
+	}
+
+	public void indexDirectory(Path startPath, int maxDepth) throws IOException {
+		Files.walkFileTree(startPath, EnumSet.noneOf(FileVisitOption.class), maxDepth, new SimpleFileVisitor<Path>() {
+			@Override
+			public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) {
+				fileIndex.put(file.getFileName().toString(), file);
+				return FileVisitResult.CONTINUE;
+			}
+
+			@Override
+			public FileVisitResult visitFileFailed(Path file, IOException exc) {
+				return FileVisitResult.CONTINUE;
+			}
+		});
 	}
 
 	public void indexDirectory(Path startPath) throws IOException {
@@ -71,14 +133,15 @@ public class FileOperations {
 		Path filePath = fileIndex.get(fileName);
 		if (filePath != null) {
 			File file = filePath.toFile();
-			String currentPath = file.getParent();
-			if (!currentPath.equals(newPath)) {
+			File newFile = new File(newPath + File.separator + file.getName());
+			if (!newFile.exists() && !file.getParent().equals(newPath)) {
 				createDirectory(newPath);
-				File newFile = new File(newPath + File.separator + file.getName());
 				if (file.renameTo(newFile)) {
 					fileIndex.put(fileName, newFile.toPath());
 					logger.info("Moved: \n\"{}\" \n-> \"{}\"", file.getAbsolutePath(), newFile.getAbsolutePath());
 					return true;
+				} else {
+					logger.error("Failed to move file: \n\"{}\"", file.getAbsolutePath());
 				}
 			}
 		}

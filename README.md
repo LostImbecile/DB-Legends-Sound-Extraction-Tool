@@ -3,11 +3,11 @@
 **This tool can:**
 1. Download all sound files (JPN/ENG/SE/Misc. Your choice).
 2. Sort them as perfectly as possible in the form:
-   - **Character Name** {Goku}
-     - **Character Versions** {SSJ Goku}
-       - **GameIDs** {DBL-XX}
-         - **Sound Type** {Homescreen}
-           - .wav or .ogg
+     - **Character Name** {Goku}
+       - **Character Versions** {SSJ Goku}
+          - **GameIDs** {DBL-XX}
+            - **Sound Type** {Homescreen}
+              - .wav or .ogg
 3. Extract them (vgmstream).
 4. Convert extracted files (ffmpeg).
 5. Delete unnecessary files and folders.
@@ -16,13 +16,13 @@
 ---
 
 **Important Notes:**
-- You need FFmpeg and vgmstream-cli. Make sure they’re either set in PATH (in your environmental variables) or inside a folder in the same directory as the app. Links below.
+- You need `FFmpeg` and `vgmstream-cli`. Make sure they’re either set in PATH (in your environmental variables) or inside a folder in the same directory as the app. Links below.
 - To stay up-to-date, run the Python script, which requires Python and UnityPy (`pip install UnityPy`).
 - All settings are in `config.properties`. You won’t be asked for input during the run.
 
 **Other Notes:**
 - Any task already done won’t be performed again. If a file was downloaded, it detects that and doesn't redownload. Same for extracted or converted files. This saves time and resources. If this causes an issue, delete corrupted files or move them outside the download directory.
-- This currently downloads all files in the categories you set.
+- This currently downloads all files in the categories you set (so all ENG/JPN/SE files).
 - To extract videos (files without an extension in Misc), use:
   ```
   ffmpeg -i input output.mp4
@@ -31,6 +31,7 @@
 - The tool is filename sensitive and will redownload/re-extract any files with changed names.
 - Some later processes require full CPU usage, mainly conversion with ffmpeg as your antivirus will be very active.
 - Works on Windows and possibly on Linux.
+- I recommend turning off anything you don't need in the settings, I made the tool work as thorough as possible, which is inefficient.
 - For any issues or if it fails contact me on Discord: `lostimbecile`
 ---
 
@@ -53,7 +54,7 @@
 **Sorting:**
 - Sorting looks at file names, tries to map them to a character from dblegends.net and then sifts them based on my personal observations, while also adding the correct extension (.acb/.awb).
 
-- if a character ends up in the "Other" folder, it's because it's a story/event exclusive character and either has no website equivalent of it (farmer with a shotgun for instance). The internal ID used for them can't be re-mapped so they all end up there.
+- if a character ends up in the "Other" folder, it's because it's a story/event exclusive character and either has no website equivalent of it (farmer with a shotgun for instance) or the internal ID used for them can't be re-mapped so they all end up there.
 
 - System messages have a Messages folder which isn't sorted into characters, but the file name may include the character's name anyway.
 

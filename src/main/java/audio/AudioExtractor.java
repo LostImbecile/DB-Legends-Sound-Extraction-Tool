@@ -7,8 +7,6 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Map.Entry;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -45,51 +43,36 @@ public class AudioExtractor {
 		boolean extract = ConfigManager.getBooleanProperty("Extract_Files");
 		boolean convertToOGG = ConfigManager.getBooleanProperty("Convert_WAV_To_OGG");
 		int numberOfThreads = Runtime.getRuntime().availableProcessors();
+		Path inputPath = Paths.get(inputDir);
 
-		
 		ProgressBar progressBar = new NumberProgressBar(processedNum, totalFileNum, startTime);
 		setProgressBar(progressBar);
 
-		try {
-			mainFolderIndexer.indexDirectory(Paths.get("."));
-		} catch (IOException e) {
-			mainFolderIndexer = null;
-		}
+		indexMainFolder(extract, convertToOGG, inputPath);
 		progressBar.reset();
-		extractFiles(inputDir, extract, numberOfThreads);
+		extractFiles(inputPath, extract, numberOfThreads);
 		progressBar.reset();
-		convertFiles(inputDir, convertToOGG, numberOfThreads);
-		deleteFiles(convertToOGG);
-
+		convertFiles(inputPath, convertToOGG, numberOfThreads);
 	}
 
-	public static void deleteFiles(boolean convertToOGG) {
-		boolean deleteWAV = ConfigManager.getBooleanProperty("Delete_WAV");
-		boolean deleteACB = ConfigManager.getBooleanProperty("Delete_ACB");
-		boolean deleteAWB = ConfigManager.getBooleanProperty("Delete_AWB");
-
-		if (!convertToOGG)
-			deleteWAV = false;
-		List<String> deleteExt = new ArrayList<>();
-		if (deleteWAV)
-			deleteExt.add(".wav");
-		if (deleteACB)
-			deleteExt.add(".acb");
-		if (deleteAWB)
-			deleteExt.add(".awb");
-
-		if (deleteWAV || deleteACB || deleteAWB) {
-			System.out.println("Deleting files...");
-			inputFolderIndexer.deleteFiles(deleteExt);
+	public static void indexMainFolder(boolean extract, boolean convertToOGG, Path inputPath) {
+		if (convertToOGG || extract) {
+			try {
+				mainFolderIndexer.indexDirectory(Paths.get("."), 4, inputPath);
+			} catch (IOException e) {
+				mainFolderIndexer = null;
+			}
 		}
 	}
 
-	public static void convertFiles(String inputDir, boolean convertToOGG, int numberOfCores) {
+	public static void convertFiles(Path inputPath, boolean convertToOGG, int numberOfCores) {
 		if (convertToOGG && checkVgmstream()) {
 			try {
-				inputFolderIndexer.indexDirectory(Paths.get(inputDir));
+				System.out.println("Indexing for conversion...");
+				inputFolderIndexer.indexDirectory(inputPath);
 			} catch (IOException e) {
 				logger.error(e);
+				return;
 			}
 			totalFileNum.set(inputFolderIndexer.numberOfFilesWithExtension("wav"));
 			// Step 2: Convert all .wav files to .ogg
@@ -107,12 +90,14 @@ public class AudioExtractor {
 		}
 	}
 
-	public static void extractFiles(String inputDir, boolean extract, int numberOfCores) {
+	public static void extractFiles(Path inputPath, boolean extract, int numberOfCores) {
 		if (extract) {
 			try {
-				inputFolderIndexer.indexDirectory(Paths.get(inputDir));
+				System.out.println("Indexing for extraction...");
+				inputFolderIndexer.indexDirectory(inputPath);
 			} catch (IOException e) {
 				logger.error(e);
+				return;
 			}
 
 			// Step 1: Extract all .acb files to .wav
