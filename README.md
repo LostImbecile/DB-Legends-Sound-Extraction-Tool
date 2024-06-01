@@ -16,7 +16,7 @@
 ---
 
 **Important Notes:**
-- You need `FFmpeg` and `vgmstream-cli`. Make sure they’re either set in PATH (in your environmental variables) or inside a folder in the same directory as the app. Links below.
+- You need `FFmpeg` [Conversion] and `vgmstream-cli` [Extraction]. Make sure they’re either set in PATH (in your environmental variables) or inside a folder in the same directory as the app. Links below.
 - To stay up-to-date, run the Python script, which requires Python and UnityPy (`pip install UnityPy`).
 - All settings are in `config.properties`. You won’t be asked for input during the run.
 
@@ -31,13 +31,14 @@
 - The tool is filename sensitive and will redownload/re-extract any files with changed names.
 - Some later processes require full CPU usage, mainly conversion with ffmpeg as your antivirus will be very active.
 - Works on Windows and possibly on Linux.
-- I recommend turning off anything you don't need in the settings, I made the tool work as thorough as possible, which is inefficient.
+- I recommend turning off anything you don't need in the settings, I made the tool work as thorough as possible but had little time to tweak it, so it can be inefficient.
 - For any issues or if it fails contact me on Discord: `lostimbecile`
 ---
 
 **Links:**
 1. [FFmpeg](https://www.gyan.dev/ffmpeg/builds/): Scroll down to release builds and download `ffmpeg-release-full.7z`. Essentials may be enough but untested.
 2. [Vgmstream-cli](https://vgmstream.org/): Command-line (64-bit) suffices.
+3. [Google Drive](https://drive.google.com/drive/folders/1NB1TviX8Kc1S2LpBpkWzM2tsq7PMBZbN?usp=sharing): Or you can get everything from here including all the sounds (1st of June 2024).
 
 ---
 
@@ -60,7 +61,7 @@
 
 - Non-voice files are put in the right folders (BGM/BGS/VFX/SE).
 
-- If dblegends.net breaks there's an internal backup but the sorting won't work as well.
+- If dblegends.net breaks there's a backup that updates on each successful fetch, but the sorting won't work as well.
 
 
 **Re-sorting:**
@@ -75,7 +76,7 @@
 **Conversion:**
 - Converts .wav to .ogg (to save a ton of space)
 - Ignores any already converted files by checking if there's an ogg version of them
-- This is also multi-threaded and very heavy on the CPU, it may take a while, turning off real-time protection in your antivirus helps if you're comfortable with it
+- This is also multi-threaded and very heavy on the CPU, it may take a while, turning off real-time protection in your antivirus helps if you're comfortable with it.
 
 
 **Deletion:**
