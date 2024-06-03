@@ -19,6 +19,7 @@
 - You need `FFmpeg` [Conversion] and `vgmstream-cli` [Extraction]. Make sure they’re either set in PATH (in your environmental variables) or inside a folder in the same directory as the app. Links below.
 - To stay up-to-date, run the Python script, which requires Python and UnityPy (`pip install UnityPy`).
 - All settings are in `config.properties`. You won’t be asked for input during the run.
+- Requires [JDK 17](https://www.oracle.com/java/technologies/javase/jdk17-archive-downloads.html) to run.
 
 **Other Notes:**
 - Any task already done won’t be performed again. If a file was downloaded, it detects that and doesn't redownload. Same for extracted or converted files. This saves time and resources. If this causes an issue, delete corrupted files or move them outside the download directory.
