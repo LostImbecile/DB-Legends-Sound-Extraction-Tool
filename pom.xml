@@ -105,15 +105,6 @@
 			</plugin>
 
 			<plugin>
-				<groupId>org.openjfx</groupId>
-				<artifactId>javafx-maven-plugin</artifactId>
-				<version>0.0.8</version>
-				<configuration>
-					<mainClass>HelloFX</mainClass>
-				</configuration>
-			</plugin>
-
-			<plugin>
 				<groupId>org.codehaus.mojo</groupId>
 				<artifactId>appassembler-maven-plugin</artifactId>
 				<version>1.10</version>
@@ -157,66 +148,6 @@
 				<!--					</execution>-->
 				<!--				</executions>-->
 			</plugin>
-
-			<!--In case you want to obfuscate your jar-->
-			<!--			<plugin>-->
-			<!--				<groupId>com.github.wvengen</groupId>-->
-			<!--				<artifactId>proguard-maven-plugin</artifactId>-->
-			<!--				<version>2.5.1</version>-->
-			<!--				<executions>-->
-			<!--					<execution>-->
-			<!--						<phase>package</phase>-->
-			<!--						<goals>-->
-			<!--							<goal>proguard</goal>-->
-			<!--						</goals>-->
-			<!--					</execution>-->
-			<!--				</executions>-->
-			<!--				<configuration>-->
-			<!--					<injarNotExistsSkip>true</injarNotExistsSkip>-->
-			<!--					<includeDependency>false</includeDependency>-->
-			<!--
-			<outputDirectory>${project.build.finalName}</outputDirectory>-->
-			<!--					<injar>${project.build.finalName}.jar</injar>-->
-			<!--					<outjar>${project.build.finalName}-obfuscated.jar</outjar>-->
-			<!--					<attach>false</attach>-->
-			<!--					<options>-->
-			<!--						<option>-keep class com.github.egubot.main.Run { *;
-			}</option>-->
-			<!--						<option>-keepnames class * { *; }</option>-->
-			<!--						<option>-dontwarn</option>-->
-			<!--						<option>-printseeds-->
-			<!--							${project.build.directory}/proguard-seeds.txt</option>-->
-			<!--						<option>-printusage-->
-			<!--							${project.build.directory}/proguard-shrinkusage.txt</option>-->
-			<!--						<option>-printmapping-->
-			<!--							${project.build.directory}/proguard-mapping.txt</option>-->
-			<!--					</options>-->
-			<!--				</configuration>-->
-			<!--			</plugin>-->
-
-			<!--			<plugin>-->
-			<!--				<artifactId>maven-resources-plugin</artifactId>-->
-			<!--				<version>3.3.1</version>-->
-			<!--				<executions>-->
-			<!--					<execution>-->
-			<!--						<id>copy-resources</id>-->
-			<!--						<phase>package</phase>-->
-			<!--						<goals>-->
-			<!--							<goal>copy-resources</goal>-->
-			<!--						</goals>-->
-			<!--						<configuration>-->
-			<!--
-			<outputDirectory>${project.build.finalName}</outputDirectory>-->
-			<!--							<resources>-->
-			<!--								<resource>-->
-			<!--									<directory>src/main/resources</directory>-->
-			<!--									<filtering>true</filtering>-->
-			<!--								</resource>-->
-			<!--							</resources>-->
-			<!--						</configuration>-->
-			<!--					</execution>-->
-			<!--				</executions>-->
-			<!--			</plugin>-->
 
 		</plugins>
 	</build>
