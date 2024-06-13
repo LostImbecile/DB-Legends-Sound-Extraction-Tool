@@ -14,9 +14,8 @@ import java.util.List;
 
 public class Main {
 	public static void main(String[] args) {
-
-		String downloadDir = getDownloadDir();
-		String packagedDir = getPackagedDir();
+		String downloadDir = getDirectory("Download_Dir", "Downloaded");
+		String packagedDir = getDirectory("Package_Dir", "Packaged");
 
 		download(Processor.processInputs(downloadDir));
 
@@ -31,33 +30,18 @@ public class Main {
 		System.out.println("\nDone!");
 	}
 
-	public static String getPackagedDir() {
-		String packagedDir = ConfigManager.getProperty("Package_Dir");
-		if (packagedDir == null || packagedDir.isBlank())
-			packagedDir = "Packaged";
-		else {
+	private static String getDirectory(String configKey, String defaultName) {
+		String dir = ConfigManager.getProperty(configKey);
+		if (dir == null || dir.isBlank()) {
+			dir = defaultName;
+		} else {
 			try {
-				Paths.get(packagedDir);
+				Paths.get(dir);
 			} catch (Exception e) {
-				packagedDir = "Packaged";
+				dir = defaultName;
 			}
 		}
-		return packagedDir;
-	}
-
-	public static String getDownloadDir() {
-		String downloadDir = ConfigManager.getProperty("Download_Dir");
-
-		if (downloadDir == null || downloadDir.isBlank())
-			downloadDir = "Downloaded";
-		else {
-			try {
-				Paths.get(downloadDir);
-			} catch (Exception e) {
-				downloadDir = "Downloaded";
-			}
-		}
-		return downloadDir;
+		return dir;
 	}
 
 	public static void download(List<String[]> links) {
