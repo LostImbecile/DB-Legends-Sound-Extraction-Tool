@@ -7,7 +7,9 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.HashSet;
 import java.util.Map.Entry;
+import java.util.Set;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
@@ -31,6 +33,7 @@ public class AudioExtractor {
 	private static FileOperations inputFolderIndexer = new FileOperations();
 	private static FileOperations mainFolderIndexer = new FileOperations();
 	private static ProgressBar progressBar;
+	private static Set<String> modifiedPaths = new HashSet<>();
 
 	private AudioExtractor() {
 	}
@@ -39,7 +42,7 @@ public class AudioExtractor {
 		AudioExtractor.progressBar = progressBar;
 	}
 
-	public static void extractAndConvert(String inputDir) {
+	public static Set<String> extractAndConvert(String inputDir) {
 		boolean extract = ConfigManager.getBooleanProperty("Extract_Files");
 		boolean convertToOGG = ConfigManager.getBooleanProperty("Convert_WAV_To_OGG");
 		int numberOfThreads = Runtime.getRuntime().availableProcessors();
@@ -53,6 +56,8 @@ public class AudioExtractor {
 		extractFiles(inputPath, extract, numberOfThreads);
 		progressBar.reset();
 		convertFiles(inputPath, convertToOGG, numberOfThreads);
+
+		return modifiedPaths;
 	}
 
 	public static void indexMainFolder(boolean extract, boolean convertToOGG, Path inputPath) {
@@ -171,7 +176,8 @@ public class AudioExtractor {
 		if (!new File(outputFilePath).exists()) {
 			String command = String.format("\"%s\" -n -i \"%s\" \"%s\"", ffmpegPath, file.getAbsolutePath(),
 					outputFilePath);
-			executeCommand(command);
+			if (executeCommand(command))
+				modifiedPaths.add(file.getPath());
 		}
 		updateProgress();
 	}
@@ -188,7 +194,8 @@ public class AudioExtractor {
 			String outputFilePath = file.getAbsolutePath().replaceAll("\\.acb$", "_?03s_?n.wav");
 			String command = String.format("\"%s\" -S 0 -o \"%s\" \"%s\"", vgmstreamPath, outputFilePath,
 					file.getAbsolutePath());
-			executeCommand(command);
+			if (executeCommand(command))
+				modifiedPaths.add(file.getPath());
 		}
 		updateProgress();
 	}
@@ -198,7 +205,8 @@ public class AudioExtractor {
 		nameNoExt = nameNoExt.substring(0, nameNoExt.indexOf("."));
 		if (inputFolderIndexer != null && !inputFolderIndexer.containsFileName(nameNoExt, "awb")) {
 			String command = String.format("\"%s\" -S 0 \"%s\"", vgmstreamPath, file.getAbsolutePath());
-			executeCommand(command);
+			if (executeCommand(command))
+				modifiedPaths.add(file.getPath());
 		}
 		updateProgress();
 	}
@@ -213,7 +221,7 @@ public class AudioExtractor {
 		}
 	}
 
-	private static void executeCommand(String command) {
+	private static boolean executeCommand(String command) {
 		try {
 			Process process = Runtime.getRuntime().exec(command);
 
@@ -229,10 +237,13 @@ public class AudioExtractor {
 
 			if (exitCode != 0) {
 				logger.error("{}%n-> Failed with exit code: {}%n", command, exitCode);
+			} else {
+				return true;
 			}
 		} catch (IOException | InterruptedException e) {
 			logger.error(e);
 		}
+		return false;
 	}
 
 	private static class StreamGobbler extends Thread {
@@ -258,5 +269,4 @@ public class AudioExtractor {
 	private interface FileProcessor {
 		void process(File file);
 	}
-
 }

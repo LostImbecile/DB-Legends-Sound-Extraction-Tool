@@ -1,6 +1,9 @@
 package zip;
 
 import java.io.*;
+import java.util.Arrays;
+import java.util.HashSet;
+import java.util.Set;
 import java.util.concurrent.*;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
@@ -17,39 +20,45 @@ public class FolderZipper {
 	private FolderZipper() {
 	}
 
-	public static void zip(String sourceDir, String packagedDir, boolean includeParentFolder) {
-		if (!ConfigManager.getBooleanProperty("Package_Files"))
-			return;
-
+	public static void zip(String sourceDir, String packagedDir) {
 		File source = new File(sourceDir);
 
-		FileOperations.createDirectory(packagedDir);
-
-		System.out.println("Packaging files...");
 		if (source.exists() && source.isDirectory()) {
 			File[] subDirs = source.listFiles(File::isDirectory);
 			if (subDirs != null) {
-				ExecutorService executor = Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors());
-				for (File folder : subDirs) {
-					if (containsNonIgnoredFiles(folder, ".acb", ".awb")) {
-						String outputDir = packagedDir;
-						executor.submit(() -> {
-							try {
-								zipFolder(folder, outputDir, includeParentFolder, ".acb", ".awb");
-							} catch (IOException e) {
-								logger.error("Error zipping folder: \n\"{}\"", folder.getName(), e);
-							}
-						});
-					}
-				}
-				executor.shutdown();
-				try {
-					executor.awaitTermination(Long.MAX_VALUE, TimeUnit.NANOSECONDS);
-				} catch (InterruptedException e) {
-					logger.error("Executor was interrupted", e);
-					Thread.currentThread().interrupt();
-				}
+				Set<File> directories = new HashSet<>(Arrays.asList(subDirs));
+				zipDirectories(directories, packagedDir);
 			}
+		}
+	}
+
+	public static void zipDirectories(Set<File> directories, String packagedDir) {
+		if (!ConfigManager.getBooleanProperty("Package_Files"))
+			return;
+
+		boolean includeParentFolder = ConfigManager.getBooleanProperty("Inlcude_Parent_Folder_In_Package");
+
+		FileOperations.createDirectory(packagedDir);
+
+		System.out.println("Packaging directories...");
+		ExecutorService executor = Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors());
+		for (File folder : directories) {
+			if (folder.exists() && folder.isDirectory() && containsNonIgnoredFiles(folder, ".acb", ".awb")) {
+				executor.submit(() -> {
+					try {
+						zipFolder(folder, packagedDir, includeParentFolder, ".acb", ".awb");
+					} catch (IOException e) {
+						logger.error("Error zipping folder: \n\"{}\"", folder.getName(), e);
+					}
+				});
+			}
+		}
+		executor.shutdown();
+		try {
+			executor.awaitTermination(Long.MAX_VALUE, TimeUnit.NANOSECONDS);
+		} catch (InterruptedException e) {
+			logger.error("Executor was interrupted", e);
+			Thread.currentThread().interrupt();
 		}
 	}
 

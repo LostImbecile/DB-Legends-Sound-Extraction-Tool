@@ -29,7 +29,6 @@
 			<DefaultRolloverStrategy max="5">
 				<Delete basePath="${filename}" maxDepth="1">
 					<IfFileName glob="errorLog-*.log" />
-					<IfAccumulatedFileSize exceeds="30MB" />
 				</Delete>
 			</DefaultRolloverStrategy>
 		</RollingFile>

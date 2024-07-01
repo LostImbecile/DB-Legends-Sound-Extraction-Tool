@@ -8,7 +8,9 @@ import java.net.HttpURLConnection;
 import java.net.SocketException;
 import java.net.URL;
 import java.net.URLConnection;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
@@ -37,7 +39,7 @@ public class Downloader {
 		Downloader.progressBar = progressBar;
 	}
 
-	public static long openWebpage(String link, String destination) {
+	public static long download(String link, String destination) {
 		int timeoutMillis = 10000;
 		long fileSize = 0;
 		int attempt = 0;
@@ -111,9 +113,11 @@ public class Downloader {
 		return -1;
 	}
 
-	public static void openAllLinks(List<String[]> links) throws InterruptedException {
+	public static Set<String> openAllLinks(List<String[]> links) throws InterruptedException {
+		Set<String> modifiedPaths = new HashSet<>();
+
 		if (links.isEmpty())
-			return;
+			return modifiedPaths;
 
 		AtomicLong startTime = new AtomicLong(0);
 		ProgressBar progressBar = new BytesProgressBar(totalBytesRead, totalFileSize, startTime);
@@ -141,7 +145,10 @@ public class Downloader {
 			}
 
 			List<Callable<Void>> openTasks = links.stream().map(link -> (Callable<Void>) () -> {
-				openWebpage(link[0], link[1]);
+				long fileSize = download(link[0], link[1]);
+				if (fileSize > 0) {
+					modifiedPaths.add(link[1]);
+				}
 				return null;
 			}).toList();
 
@@ -156,5 +163,7 @@ public class Downloader {
 
 		progressBar.printTimeTaken();
 		System.out.println();
+
+		return modifiedPaths;
 	}
 }

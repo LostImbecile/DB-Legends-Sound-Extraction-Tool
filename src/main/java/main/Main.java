@@ -9,24 +9,39 @@ import processing.Processor;
 import zip.FolderZipper;
 
 import java.io.File;
+import java.io.FileWriter;
 import java.nio.file.Paths;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 public class Main {
 	public static void main(String[] args) {
 		String downloadDir = getDirectory("Download_Dir", "Downloaded");
 		String packagedDir = getDirectory("Package_Dir", "Packaged");
 
-		download(Processor.processInputs(downloadDir));
+		Set<String> modifiedDirectories = new HashSet<>();
+
+		modifiedDirectories.addAll(download(Processor.processInputs(downloadDir)));
 
 		FileOperations.deleteEmptyFoldersRecursively(new File(downloadDir));
 
-		AudioExtractor.extractAndConvert(downloadDir);
+		modifiedDirectories.addAll(AudioExtractor.extractAndConvert(downloadDir));
 
 		Deleter.deleteFiles(downloadDir);
 
-		FolderZipper.zip(downloadDir, packagedDir,
-				ConfigManager.getBooleanProperty("Inlcude_Parent_Folder_In_Package"));
+		modifiedDirectories = getParentFolderNames(modifiedDirectories, downloadDir);
+
+		if (ConfigManager.getBooleanProperty("Zip_Modified_Only")) {
+			Set<File> directories = modifiedDirectories.stream().map(File::new).collect(Collectors.toSet());
+			FolderZipper.zipDirectories(directories, packagedDir);
+		} else {
+			FolderZipper.zip(downloadDir, packagedDir);
+		}
+
+		writeModifiedDirectories(modifiedDirectories);
+
 		System.out.println("\nDone!");
 	}
 
@@ -44,14 +59,47 @@ public class Main {
 		return dir;
 	}
 
-	public static void download(List<String[]> links) {
+	public static Set<String> download(List<String[]> links) {
 		boolean dontDownload = ConfigManager.getBooleanProperty("Dont_Download");
 		if (!links.isEmpty() && !dontDownload) {
 			System.out.println("\nDownloading " + links.size() + " Files");
 			try {
-				Downloader.openAllLinks(links);
+				return Downloader.openAllLinks(links);
 			} catch (InterruptedException e) {
 				e.printStackTrace();
+			}
+		}
+		return new HashSet<>();
+	}
+
+	public static Set<String> getParentFolderNames(Set<String> directories, String downloadDir) {
+	    Set<String> secondFolderNames = new HashSet<>();
+
+	    for (String directory : directories) {
+	        try {
+				int startIndex = directory.lastIndexOf(downloadDir);
+				if (startIndex != -1) {
+					int folderIndex = startIndex + downloadDir.length() + 1;
+				    String remainingPath = directory.substring(folderIndex);
+				    int endIndex = remainingPath.indexOf(File.separator);
+				    if (endIndex != -1) {
+				        String secondFolder = directory.substring(startIndex, folderIndex + endIndex);
+				        secondFolderNames.add(secondFolder);
+				    }
+				}
+			} catch (Exception e) {
+			}
+	    }
+
+	    return secondFolderNames;
+	}
+
+	private static void writeModifiedDirectories(Set<String> modifiedDirectories) {
+		if (!modifiedDirectories.isEmpty()) {
+			try (FileWriter file = new FileWriter("Modified_Directories.txt")) {
+				file.write(String.join("\n", modifiedDirectories));
+				file.flush();
+			} catch (Exception e) {
 			}
 		}
 	}
