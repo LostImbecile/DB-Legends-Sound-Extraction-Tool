@@ -1,10 +1,7 @@
 package audio;
 
-import java.io.BufferedReader;
 import java.io.File;
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.HashSet;
@@ -19,6 +16,7 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import config.ConfigManager;
+import execute.command.CommandExecuter;
 import fileops.FileOperations;
 import utils.NumberProgressBar;
 import utils.ProgressBar;
@@ -156,7 +154,7 @@ public class AudioExtractor {
 	}
 
 	public static String getExecutablePath(String command) {
-		if (!canExecuteCommand(command)) {
+		if (!CommandExecuter.canExecuteCommand(command)) {
 			return mainFolderIndexer != null ? mainFolderIndexer.getPath(command + ".exe") : null;
 		}
 		return command;
@@ -176,7 +174,7 @@ public class AudioExtractor {
 		if (!new File(outputFilePath).exists()) {
 			String command = String.format("\"%s\" -n -i \"%s\" \"%s\"", ffmpegPath, file.getAbsolutePath(),
 					outputFilePath);
-			if (executeCommand(command))
+			if (CommandExecuter.executeCommand(command))
 				modifiedPaths.add(file.getPath());
 		}
 		updateProgress();
@@ -194,7 +192,7 @@ public class AudioExtractor {
 			String outputFilePath = file.getAbsolutePath().replaceAll("\\.acb$", "_?03s_?n.wav");
 			String command = String.format("\"%s\" -S 0 -o \"%s\" \"%s\"", vgmstreamPath, outputFilePath,
 					file.getAbsolutePath());
-			if (executeCommand(command))
+			if (CommandExecuter.executeCommand(command))
 				modifiedPaths.add(file.getPath());
 		}
 		updateProgress();
@@ -205,64 +203,10 @@ public class AudioExtractor {
 		nameNoExt = nameNoExt.substring(0, nameNoExt.indexOf("."));
 		if (inputFolderIndexer != null && !inputFolderIndexer.containsFileName(nameNoExt, "awb")) {
 			String command = String.format("\"%s\" -S 0 \"%s\"", vgmstreamPath, file.getAbsolutePath());
-			if (executeCommand(command))
+			if (CommandExecuter.executeCommand(command))
 				modifiedPaths.add(file.getPath());
 		}
 		updateProgress();
-	}
-
-	private static boolean canExecuteCommand(String command) {
-		try {
-			Process process = Runtime.getRuntime().exec(command);
-			process.destroy();
-			return true;
-		} catch (IOException e) {
-			return false;
-		}
-	}
-
-	private static boolean executeCommand(String command) {
-		try {
-			Process process = Runtime.getRuntime().exec(command);
-
-			// Consume the output and error streams to prevent blocking
-			StreamGobbler outputGobbler = new StreamGobbler(process.getInputStream());
-			StreamGobbler errorGobbler = new StreamGobbler(process.getErrorStream());
-			outputGobbler.start();
-			errorGobbler.start();
-
-			int exitCode = process.waitFor();
-			outputGobbler.join();
-			errorGobbler.join();
-
-			if (exitCode != 0) {
-				logger.error("{}%n-> Failed with exit code: {}%n", command, exitCode);
-			} else {
-				return true;
-			}
-		} catch (IOException | InterruptedException e) {
-			logger.error(e);
-		}
-		return false;
-	}
-
-	private static class StreamGobbler extends Thread {
-		private final BufferedReader reader;
-
-		public StreamGobbler(InputStream inputStream) {
-			this.reader = new BufferedReader(new InputStreamReader(inputStream));
-		}
-
-		@Override
-		public void run() {
-			try {
-				while (reader.readLine() != null) {
-					// consume
-				}
-			} catch (IOException e) {
-				logger.error(e);
-			}
-		}
 	}
 
 	@FunctionalInterface

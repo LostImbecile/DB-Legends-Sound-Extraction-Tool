@@ -32,7 +32,7 @@ public class Run {
 		 */
 		Console console = System.console();
 
-		// If the bot isn't already in a console it runs the main method
+		// If the bot is already in a console it runs the main method
 		if (console == null && !GraphicsEnvironment.isHeadless() && getJarName().contains(".jar")) {
 			try {
 				Runtime.getRuntime().exec(getRunInConsoleCommand());
