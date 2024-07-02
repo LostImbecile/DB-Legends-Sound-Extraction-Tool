@@ -20,6 +20,7 @@ public class Main {
 	public static void main(String[] args) {
 		String downloadDir = getDirectory("Download_Dir", "Downloaded");
 		String packagedDir = getDirectory("Package_Dir", "Packaged");
+		System.out.println("Remember to change any settings in config.properties!\n");
 
 		Set<String> modifiedDirectories = new HashSet<>();
 
