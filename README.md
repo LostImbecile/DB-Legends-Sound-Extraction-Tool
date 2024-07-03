@@ -8,8 +8,8 @@
           - **GameIDs** {DBL-XX}
             - **Sound Type** {Homescreen}
               - .wav or .ogg
-3. Extract them (vgmstream).
-4. Convert extracted files (ffmpeg).
+3. Extract them to .wav (vgmstream).
+4. Convert extracted files to .ogg (ffmpeg).
 5. Delete unnecessary files and folders.
 6. Package files into zips, ignoring unwanted formats.
 
@@ -18,12 +18,12 @@
 **Important Notes:**
 - You need `FFmpeg` [Conversion] and `vgmstream-cli` [Extraction]. Make sure they’re either set in PATH (in your environmental variables) or inside a folder in the same directory as the app. Links below.
 - To stay up-to-date, run the Python script, which requires Python and UnityPy (`pip install UnityPy`).
-- All settings are in `config.properties`. You won’t be asked for input during the run.
+- All settings are in `config.properties`. You won’t be asked for input during the run. **Be sure to tweak it before running**.
 - Requires [JDK 17](https://www.oracle.com/java/technologies/javase/jdk17-archive-downloads.html) to run.
 
 **Other Notes:**
 - Any task already done won’t be performed again. If a file was downloaded, it detects that and doesn't redownload. Same for extracted or converted files. This saves time and resources. If this causes an issue, delete corrupted files or move them outside the download directory.
-- This currently downloads all files in the categories you set (so all ENG/JPN/SE files).
+- This currently downloads all files in the categories you set (so all ENG/JPN/SE files), be sure to select them in the config file.
 - To extract videos (files without an extension in Misc), use:
   ```
   ffmpeg -i input output.mp4
@@ -32,8 +32,10 @@
 - The tool is filename sensitive and will redownload/re-extract any files with changed names.
 - Some later processes require full CPU usage, mainly conversion with ffmpeg as your antivirus will be very active.
 - Works on Windows and possibly on Linux.
-- I recommend turning off anything you don't need in the settings, I made the tool work as thorough as possible but had little time to tweak it, so it can be inefficient.
+- I recommend turning off anything you don't need in the settings, I made the tool work as thorough as possible but had little time to tweak it, so it can be inefficient, and you may feel that, as indexing relies on your storage response time.
+- Older tools are in the other branches, if you want them go there.
 - For any issues or if it fails contact me on Discord: `lostimbecile`
+
 ---
 
 **Links:**
