@@ -17,6 +17,7 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicLong;
 import javax.swing.ProgressMonitorInputStream;
 
@@ -89,7 +90,9 @@ public class Downloader {
 			failedFile.delete();
 		}
 		totalFileSize.addAndGet(-fileSize);
-		System.out.println("Failed to download " + destination + " after " + MAX_RETRIES + " attempts.");
+		String fileName = destination.substring(destination.lastIndexOf(File.separator) + 1);
+
+		logger.error("Failed to download: \n\"{}\"", fileName);
 		return 0;
 	}
 
@@ -129,6 +132,8 @@ public class Downloader {
 		List<Callable<Long>> sizeTasks = links.stream().map(link -> (Callable<Long>) () -> getFileSize(link[0]))
 				.toList();
 
+		AtomicBoolean failedDownloadFlag = new AtomicBoolean(false);
+
 		try {
 			System.out.println("Calculating total size...");
 			List<Future<Long>> sizeFutures = fileSizeExecutor.invokeAll(sizeTasks);
@@ -148,6 +153,8 @@ public class Downloader {
 				long fileSize = download(link[0], link[1]);
 				if (fileSize > 0) {
 					modifiedPaths.add(link[1]);
+				} else {
+					failedDownloadFlag.set(true);
 				}
 				return null;
 			}).toList();
@@ -161,6 +168,9 @@ public class Downloader {
 			openExecutor.awaitTermination(Long.MAX_VALUE, TimeUnit.DAYS);
 		}
 
+		if (failedDownloadFlag.get()) {
+			System.out.println("Some downloads failed, check the error log or restart to re-attempt.");
+		}
 		progressBar.printTimeTaken();
 		System.out.println();
 
