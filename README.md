@@ -17,7 +17,7 @@
 
 **Important Notes:**
 - You need `FFmpeg` [Conversion] and `vgmstream-cli` [Extraction]. Make sure they’re either set in PATH (in your environmental variables) or inside a folder in the same directory as the app. Links below.
-- To stay up-to-date, run the Python script, which requires Python and UnityPy (`pip install UnityPy`).
+- ~~To stay up-to-date, run the Python script, which requires Python and UnityPy (`pip install UnityPy`)~~ Avoid that for now.
 - All settings are in `config.properties`. You won’t be asked for input during the run. **Be sure to tweak it before running**.
 - Requires [JDK 17](https://www.oracle.com/java/technologies/javase/jdk17-archive-downloads.html) to run.
 
