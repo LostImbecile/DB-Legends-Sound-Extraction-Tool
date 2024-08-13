@@ -9,14 +9,17 @@ import processing.Processor;
 import zip.FolderZipper;
 
 import java.io.File;
-import java.io.FileWriter;
 import java.nio.file.Paths;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+
 public class Main {
+	private static final Logger logger = LogManager.getLogger(Main.class.getName());
 	public static void main(String[] args) {
 		String downloadDir = getDirectory("Download_Dir", "Downloaded");
 		String packagedDir = getDirectory("Package_Dir", "Packaged");
@@ -41,7 +44,7 @@ public class Main {
 			FolderZipper.zip(downloadDir, packagedDir);
 		}
 
-		writeModifiedDirectories(modifiedDirectories);
+		modifiedDirectories.forEach(logger::info);
 
 		System.out.println("\nDone!");
 	}
@@ -93,16 +96,6 @@ public class Main {
 	    }
 
 	    return secondFolderNames;
-	}
-
-	private static void writeModifiedDirectories(Set<String> modifiedDirectories) {
-		if (!modifiedDirectories.isEmpty()) {
-			try (FileWriter file = new FileWriter("Modified_Directories.txt")) {
-				file.write(String.join("\n", modifiedDirectories));
-				file.flush();
-			} catch (Exception e) {
-			}
-		}
 	}
 
 }

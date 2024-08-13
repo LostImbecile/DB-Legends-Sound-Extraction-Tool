@@ -54,6 +54,27 @@
 			</DefaultRolloverStrategy>
 		</RollingFile>
 
+		<RollingFile name="ModifiedDirectoriesLogFile"
+			fileName="${filename}/ModifiedDirectories.log"
+			filePattern="${filename}/ModifiedDirectories-%d{yyyy-MM-dd-HH}-%i.log">
+			<LevelRangeFilter minLevel="INFO" maxLevel="INFO"
+				onMatch="ACCEPT" onMismatch="DENY" />
+			<PatternLayout>
+				<pattern>%msg%n</pattern>
+			</PatternLayout>
+			<Policies>
+				<OnStartupTriggeringPolicy />
+				<SizeBasedTriggeringPolicy size="10 MB" />
+			</Policies>
+
+			<DefaultRolloverStrategy max="10">
+				<Delete basePath="${filename}" maxDepth="1">
+					<IfFileName glob="modifiedDirectories-*.log" />
+					<IfAccumulatedFileSize exceeds="30MB" />
+				</Delete>
+			</DefaultRolloverStrategy>
+		</RollingFile>
+
 	</Appenders>
 	<Loggers>
 		<Root level="info" additivity="false">
@@ -61,5 +82,9 @@
 			<AppenderRef ref="InfoLogFile" />
 			<AppenderRef ref="ErrorLogFile" level="error" />
 		</Root>
+
+		<Logger name="main.Main" level="info" additivity="false">
+			<AppenderRef ref="ModifiedDirectoriesLogFile" />
+		</Logger>
 	</Loggers>
 </Configuration>
