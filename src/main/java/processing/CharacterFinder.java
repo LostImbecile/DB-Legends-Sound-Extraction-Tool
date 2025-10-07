@@ -33,7 +33,17 @@ public class CharacterFinder {
 			if (key.equals("501"))
 				continue;
 			if (path.contains("_" + key + "_") || path.contains("_" + key + ".")) {
-				return key;
+				// If the ID is 3+ digits, it's a definite match
+				if (key.length() >= 3) {
+					return key;
+				}
+
+				// For shorter IDs, validate against the name in the path
+				String characterNameForId = idMap.get(key);
+				if (isNameHintInPath(characterNameForId, path)) {
+					return key; // ID is validated by name hint.
+				}
+				// Otherwise, this is likely a false positive (e.g., '24' in a goku file), so we ignore it
 			}
 		}
 		// Check if part of name
@@ -52,5 +62,28 @@ public class CharacterFinder {
 		}
 
 		return id;
+	}
+
+	private static boolean isNameHintInPath(String name, String path) {
+		if (name == null || name.isEmpty()) {
+			return false;
+		}
+
+		String lowerCasePath = path.toLowerCase();
+		String[] pathTokens = lowerCasePath.split("[_\\.]");
+		
+		String lowerCaseName = name.toLowerCase();
+		String[] nameTokens = lowerCaseName.split(" ");
+
+		for (String nt : nameTokens) {
+			if (nt.length() < 3) continue; // Ignore short tokens
+			for (String pt : pathTokens) {
+				if (pt.equals(nt)) {
+					return true; // Found a matching token
+				}
+			}
+		}
+
+		return false;
 	}
 }
