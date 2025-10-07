@@ -119,11 +119,6 @@ public class Characters {
 		return isZenkai;
 	}
 
-	@Override
-	public String toString() {
-		return "Characters [\ncharacterName=" + characterName + "\nrarity=" + rarity + "\ngameID=" + gameID + "\nsiteID="
-				+ siteID + "\n]";
-	}
 
 	public void setBaseName(String baseName) {
 		if(baseName == null)
@@ -143,5 +138,12 @@ public class Characters {
 	        result.append(part.substring(1)).append(" ");
 	    }
 	    return result.toString().trim();
+	}
+
+	@Override
+	public String toString() {
+		return "Characters [characterName=" + characterName + ", baseName=" + baseName + ", rarity=" + rarity
+				+ ", colour=" + colour + ", gameID=" + gameID + ", imageLink=" + imageLink + ", siteID=" + siteID
+				+ ", isZenkai=" + isZenkai + ", isLF=" + isLF + "]";
 	}
 }

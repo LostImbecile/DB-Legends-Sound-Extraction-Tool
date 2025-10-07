@@ -1,14 +1,11 @@
 package objects;
 
-import java.io.Serializable;
 import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 
-public class CharacterHash extends HashSet<Characters> {
-
-	private static final long serialVersionUID = 1659741544544868218L;
+public class CharacterHash {
+	// Indices from the site are unique and dense, linear probing is just in case
+	// of any unexpected issues
 	private static final int DEFAULT_CAPACITY = 100;
 	private ArrayList<Entry> table;
 	private int occupiedSize;
@@ -75,8 +72,11 @@ public class CharacterHash extends HashSet<Characters> {
 		return false;
 	}
 
-	@Override
 	public int size() {
+		return occupiedSize;
+	}
+
+	public int capacity() {
 		return table.size();
 	}
 
@@ -135,8 +135,7 @@ public class CharacterHash extends HashSet<Characters> {
 		return -1;
 	}
 
-	private static class Entry implements Serializable {
-		private static final long serialVersionUID = -2084321373016689242L;
+	private static class Entry {
 		int key;
 		Characters value;
 
@@ -158,19 +157,13 @@ public class CharacterHash extends HashSet<Characters> {
 		return list;
 	}
 
-	@Override
 	public boolean isEmpty() {
 		return getOccupiedSize() == 0;
 	}
 
-	@Override
-	public Set<Characters> clone() {
-		CharacterHash hashClone = new CharacterHash();
-		for (int i = 0; i < this.size(); i++) {
-			hashClone.put(this.get(i));
-		}
-		return hashClone;
-
+	public void clear() {
+		table.clear();
+		occupiedSize = 0;
 	}
 
 }
