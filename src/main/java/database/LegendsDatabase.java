@@ -115,29 +115,135 @@ public class LegendsDatabase {
 	private static void getCharacters(Document document) {
         Elements characters = document.select("a.chara-list");
         for (Element character : characters) {
-            String charaUrl = character.attr("href");
-            String name = character.select(".card-header.name").text();
-            String colour = character.select(".backing").attr("class").replaceAll("backing\\s+\\.", "").toUpperCase().strip();
-            if (colour.isEmpty()) {
-                colour = null;
-            }
-            String rarity = character.select("div.rarity").attr("class").replace("rarity ", "").toUpperCase();
-            if (rarity.isEmpty()) {
-                rarity = null;
-            }
-            String imgUrl = character.select(".character-thumb img").attr("src");
+        	String charaUrl = character.attr("href");
+			String name = character.attr("data-charaname");
+			String colour = character.attr("data-element");
+			String rarity = character.attr("data-rarity");
+			String zenkai = character.attr("data-zenkai");
+			String lf = character.attr("data-lf");
+			String tags = character.attr("data-tags");
+			String imgUrl = character.select(".character-thumb img").attr("src");
+			String gameID = character.select("div[title]").attr("title");
 
-            int siteID = getSiteID(charaUrl);
+			// Alternate names and image
+			// String charaFormName = character.attr("data-charaformname");
+			// String img2Url = character.select(".character2").attr("src");
 
-            Characters newCharacter = new Characters();
-            newCharacter.setSiteID(siteID);
-            newCharacter.setImageLink(imgUrl);
-            newCharacter.setColour(colour);
-            newCharacter.setRarity(rarity);
-            newCharacter.setCharacterName(processName(name));
+			int siteID = getSiteID(charaUrl);
+			if (gameID.isBlank() || siteID == -1)
+				continue;
 
+			Characters newCharacter = new Characters();
+			newCharacter.setSiteID(siteID);
+			newCharacter.setImageLink(imgUrl);
+			newCharacter.setColour(colour);
+			newCharacter.setGameID(gameID);
+			newCharacter.setRarity(rarity);
+			newCharacter.setCharacterName(processName(name));
+
+			boolean zenkaiStatus = getZenkaiStatus(zenkai);
+			boolean lfStatus = getLFStatus(lf);
+
+			if (zenkaiStatus)
+				getTags().get(12).getCharacters().put(newCharacter);
+			if (lfStatus)
+				getTags().get(13).getCharacters().put(newCharacter);
+
+			newCharacter.setZenkai(zenkaiStatus);
+			newCharacter.setLF(lfStatus);
+
+			setTags(tags, newCharacter);
+			evaluateReleaseDate(gameID, newCharacter);
 			charactersList.add(newCharacter);
 			characterHash.put(newCharacter);
+		}
+	}
+	
+	private static boolean getLFStatus(String st) {
+		return !st.equals("0");
+	}
+
+	
+	private static boolean getZenkaiStatus(String st) {
+		return !st.equals("-1");
+	}
+	
+	private static void setTags(String line, Characters character) {
+		String[] token = line.split("\\s+");
+
+		tags.get(25).getCharacters().put(character);
+		if (character.getCharacterName().toLowerCase().contains("assist"))
+			tags.get(26).getCharacters().put(character);
+
+		for (String id : token) {
+			getTag(id, character);
+		}
+	}
+	
+	private static void evaluateReleaseDate(String st, Characters character) {
+		try {
+			int releaseDate;
+			int yearIndex;
+			if (!st.contains("EVT")) {
+				try {
+
+					releaseDate = Integer.parseInt(st.substring(st.indexOf("L") + 1, st.indexOf("-")));
+					yearIndex = 13;
+					if (releaseDate == 0)
+						yearIndex++;
+
+					while (releaseDate > 0) {
+						releaseDate -= 12;
+						yearIndex++;
+					}
+
+					// Years from index 14 to 21
+					if (yearIndex > 13 && yearIndex < 22) {
+						// Adds units on the edge of the year to both years
+						if (releaseDate == 1 && yearIndex > 14)
+							tags.get(yearIndex - 1).getCharacters().put(character);
+
+						if (releaseDate == -1 && yearIndex < 21)
+							tags.get(yearIndex + 1).getCharacters().put(character);
+
+						tags.get(yearIndex).getCharacters().put(character);
+					}
+
+					// Add old or new tag
+					if (yearIndex < 16)
+						tags.get(22).getCharacters().put(character);
+					else
+						tags.get(23).getCharacters().put(character);
+
+				} catch (NumberFormatException e) {
+				}
+			} else {
+				// Specific units someone wanted added
+				releaseDate = character.getSiteID();
+				if (releaseDate == 45 || releaseDate == 162 || releaseDate == 157 || releaseDate == 183
+						|| releaseDate == 201 || releaseDate == 246) {
+					tags.get(14).getCharacters().put(character);
+					tags.get(22).getCharacters().put(character);
+				}
+
+				// Add to event tag
+				tags.get(24).getCharacters().put(character);
+			}
+		} catch (StringIndexOutOfBoundsException e) {
+		}
+	}
+	
+	private static void getTag(String st, Characters character) {
+		int id = Integer.parseInt(st);
+		tags.get(25).getCharacters().put(character);
+
+		for (Tags tag : tags) {
+			if (tag.getId() == id) {
+				if (id >= 50000 && id < 8000000)
+					character.setBaseName(tag.getName());
+				tag.getCharacters().put(character);
+				return;
+			}
 		}
 	}
 
