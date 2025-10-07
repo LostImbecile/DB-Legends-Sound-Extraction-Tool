@@ -27,11 +27,13 @@ public class AudioExtractor {
 	private static AtomicLong processedNum = new AtomicLong(0);
 	private static AtomicLong startTime = new AtomicLong(0);
 	private static String ffmpegPath = "ffmpeg";
+	private static String soxPath = "sox";
 	private static String vgmstreamPath = "vgmstream-cli";
 	private static FileOperations inputFolderIndexer = new FileOperations();
 	private static FileOperations mainFolderIndexer = new FileOperations();
 	private static ProgressBar progressBar;
 	private static Set<String> modifiedPaths = new HashSet<>();
+	private static boolean useSox = false;
 
 	private AudioExtractor() {
 	}
@@ -69,7 +71,7 @@ public class AudioExtractor {
 	}
 
 	public static void convertFiles(Path inputPath, boolean convertToOGG, int numberOfCores) {
-		if (convertToOGG && checkVgmstream()) {
+		if (convertToOGG && checkWavConverter()) {
 			try {
 				System.out.println("Indexing for conversion...");
 				inputFolderIndexer.indexDirectory(inputPath);
@@ -78,7 +80,6 @@ public class AudioExtractor {
 				return;
 			}
 			totalFileNum.set(inputFolderIndexer.numberOfFilesWithExtension("wav"));
-			// Step 2: Convert all .wav files to .ogg
 			System.out.println("Converting wav to ogg...");
 			ExecutorService wavExecutor = Executors.newFixedThreadPool(numberOfCores);
 			processFiles(wavExecutor, ".wav", AudioExtractor::convertWavToOgg);
@@ -103,10 +104,9 @@ public class AudioExtractor {
 				return;
 			}
 
-			// Step 1: Extract all .acb files to .wav
 			System.out.println("Extracting files...");
 
-			if (!checkFFmpeg())
+			if (!checkVgmstream())
 				return;
 
 			totalFileNum.set(inputFolderIndexer.numberOfFilesWithExtension("acb", "awb"));
@@ -133,24 +133,35 @@ public class AudioExtractor {
 		}
 	}
 
-	private static boolean checkFFmpeg() {
-		if (getExecutablePath(ffmpegPath) == null) {
-			System.out.println(
-					"FFmpeg.exe not found anywhere.\nPlease put it within a folder inside the directory or system path and rerun");
-			return false;
-		}
-
-		return true;
-	}
-
 	private static boolean checkVgmstream() {
-		if (getExecutablePath(vgmstreamPath) == null) {
+		String path = getExecutablePath(vgmstreamPath);
+		if (path == null) {
 			System.out.println(
 					"vgmstream-cli.exe not found anywhere.\nPlease put it within a folder inside the directory or system path and rerun");
 			return false;
 		}
-
+		vgmstreamPath = path;
 		return true;
+	}
+
+	private static boolean checkWavConverter() {
+		String path = getExecutablePath(ffmpegPath);
+		if (path != null) {
+			ffmpegPath = path;
+			useSox = false;
+			return true;
+		}
+		
+		path = getExecutablePath(soxPath);
+		if (path != null) {
+			soxPath = path;
+			useSox = true;
+			return true;
+		}
+		
+		System.out.println(
+				"Neither FFmpeg.exe nor sox.exe found.\nPlease put one of them within a folder inside the directory or system path and rerun");
+		return false;
 	}
 
 	public static String getExecutablePath(String command) {
@@ -172,8 +183,13 @@ public class AudioExtractor {
 	private static void convertWavToOgg(File file) {
 		String outputFilePath = file.getAbsolutePath().replaceAll("\\.wav$", ".ogg");
 		if (!new File(outputFilePath).exists()) {
-			String command = String.format("\"%s\" -n -i \"%s\" \"%s\"", ffmpegPath, file.getAbsolutePath(),
-					outputFilePath);
+			String command;
+			if (useSox) {
+				command = String.format("\"%s\" \"%s\" \"%s\"", soxPath, file.getAbsolutePath(), outputFilePath);
+			} else {
+				command = String.format("\"%s\" -n -i \"%s\" \"%s\"", ffmpegPath, file.getAbsolutePath(),
+						outputFilePath);
+			}
 			if (CommandExecuter.executeCommand(command))
 				modifiedPaths.add(file.getPath());
 		}
