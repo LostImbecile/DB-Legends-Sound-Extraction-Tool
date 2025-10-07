@@ -9,16 +9,16 @@
             - **Sound Type** {Homescreen}
               - .wav or .ogg
 3. Extract them to .wav (vgmstream).
-4. Convert extracted files to .ogg (ffmpeg).
+4. Convert extracted files to .ogg (ffmpeg/sox).
 5. Delete unnecessary files and folders.
 6. Package files into zips, ignoring unwanted formats.
 
 ---
 
 **Important Notes:**
-- You need `FFmpeg` [Conversion] and `vgmstream-cli` [Extraction]. Make sure they’re either set in PATH (in your environmental variables) or inside a folder in the same directory as the app. Links below.
+- You may need `FFmpeg/Sox` [Conversion] and `vgmstream-cli` [Extraction]. I've included them in the latest release so it's fine, but otherwise, make sure they’re either set in PATH (in your environmental variables) or inside a folder in the same directory as the app. Links below.
 - To stay up-to-date, run the Python script, which requires Python and UnityPy (`pip install UnityPy`).
-- All settings are in `config.properties`. You won’t be asked for input during the run. **Be sure to tweak it before running**.
+- All settings are in `config.properties`. You won’t be asked for input during the run. **Be sure to tweak them before running**.
 - Requires [JDK 17](https://www.oracle.com/java/technologies/javase/jdk17-archive-downloads.html) to run.
 
 **Other Notes:**
@@ -32,16 +32,17 @@
 - The tool is filename sensitive and will redownload/re-extract any files with changed names.
 - Some later processes require full CPU usage, mainly conversion with ffmpeg as your antivirus will be very active.
 - Works on Windows and possibly on Linux.
-- I recommend turning off anything you don't need in the settings, I made the tool work as thorough as possible but had little time to tweak it, so it can be inefficient, and you may feel that, as indexing relies on your storage response time.
+- I recommend turning off anything you don't need in the settings, I made the tool work as thorough as possible but had little time to tweak it, and it may take a bit, as indexing relies on your storage response time over, at times, 40k files and 5k folders.
 - Older tools are in the other branches, if you want them go there.
 - For any issues or if it fails contact me on Discord: `lostimbecile`
 
 ---
 
 **Links:**
-1. [FFmpeg](https://www.gyan.dev/ffmpeg/builds/): Scroll down to release builds and download `ffmpeg-release-full.7z`. Essentials may be enough but untested.
-2. [Vgmstream-cli](https://vgmstream.org/): Command-line (64-bit) suffices.
-3. [Google Drive](https://drive.google.com/drive/folders/1NB1TviX8Kc1S2LpBpkWzM2tsq7PMBZbN?usp=sharing): Or you can get everything from here including all the sounds (1st of June 2024).
+- [FFmpeg](https://www.gyan.dev/ffmpeg/builds/): Scroll down to release builds and download `ffmpeg-release-full.7z`. Essentials may be enough but untested.
+- [Sox](https://sourceforge.net/projects/sox/files/sox/14.4.2/): FFmpeg alternative (lighter weight).
+- [Vgmstream-cli](https://vgmstream.org/): Command-line (64-bit) suffices.
+- [Google Drive](https://drive.google.com/drive/folders/1NB1TviX8Kc1S2LpBpkWzM2tsq7PMBZbN?usp=sharing): Or you can get everything from here including all the sounds (7th of October 2025).
 
 ---
 
