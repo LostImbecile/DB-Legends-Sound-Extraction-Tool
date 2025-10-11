@@ -1,4 +1,6 @@
-# DB-Legends-Sound-Extraction-Tool
+# DB Legends Sound Extraction Tool
+A tool that automates fetching and extracting files from the mobile game Dragon Ball Legends. 
+Get the files here: [GoogleDrive](https://drive.google.com/drive/folders/1NB1TviX8Kc1S2LpBpkWzM2tsq7PMBZbN?usp=drive_link)
 
 **This tool can:**
 1. Download all sound files (JPN/ENG/SE/Misc. Your choice).
@@ -42,7 +44,7 @@
 - [FFmpeg](https://www.gyan.dev/ffmpeg/builds/): Scroll down to release builds and download `ffmpeg-release-full.7z`. Essentials may be enough but untested.
 - [Sox](https://sourceforge.net/projects/sox/files/sox/14.4.2/): FFmpeg alternative (lighter weight).
 - [Vgmstream-cli](https://vgmstream.org/): Command-line (64-bit) suffices.
-- [Google Drive](https://drive.google.com/drive/folders/1NB1TviX8Kc1S2LpBpkWzM2tsq7PMBZbN?usp=sharing): Or you can get everything from here including all the sounds (7th of October 2025).
+- [Google Drive](https://drive.google.com/drive/folders/1NB1TviX8Kc1S2LpBpkWzM2tsq7PMBZbN?usp=sharing): Or you can get everything from here including all the sounds.
 
 ---
 
